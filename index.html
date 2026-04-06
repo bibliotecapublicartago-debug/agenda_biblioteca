@@ -14,6 +14,19 @@
     </header>
 
     <main>
+        <div class="calendario-filtros">
+            <p>Seleccione un día para ver los talleres:</p>
+            <div class="botones-dias">
+                <button class="btn-dia" onclick="filtrarPorDia('Lunes')">Lunes</button>
+                <button class="btn-dia" onclick="filtrarPorDia('Martes')">Martes</button>
+                <button class="btn-dia" onclick="filtrarPorDia('Miércoles')">Miércoles</button>
+                <button class="btn-dia" onclick="filtrarPorDia('Jueves')">Jueves</button>
+                <button class="btn-dia" onclick="filtrarPorDia('Viernes')">Viernes</button>
+                <button class="btn-dia" onclick="filtrarPorDia('Sábado')">Sábado</button>
+                <button class="btn-dia btn-todos" onclick="filtrarPorDia('todos')">Ver Todo</button>
+            </div>
+        </div>
+
         <div class="controles">
             <input type="text" id="buscador" placeholder="Buscar por actividad, instructor o lugar...">
             
