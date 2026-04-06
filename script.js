@@ -2,20 +2,19 @@
 const URL_GOOGLE_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFJpQqBtRrFtXmFaMP0GJo191BMoV6eFl6r-Tn6SAl3QXORfXCEVUzdcT0dumGk_c0aBxd95hBzwCR/pub?output=csv';
 
 let actividadesGlobales = [];
-let diaFiltroActual = 'todos'; // Variable para recordar qué día tenemos seleccionado
+let diaFiltroActual = 'todos'; 
 
 // 1. Descargar y procesar los datos del Excel
 Papa.parse(URL_GOOGLE_SHEET, {
     download: true,
     header: true,
     complete: function(resultados) {
-        // Limpiamos filas vacías y nos aseguramos de que haya una actividad escrita
         actividadesGlobales = resultados.data.filter(act => act["Actividad"] && act["Actividad"].trim() !== ""); 
         mostrarActividades(actividadesGlobales);
     },
     error: function(err) {
         console.error("Error al leer el CSV:", err);
-        document.getElementById('contenedor-actividades').innerHTML = '<p>Hubo un problema al cargar la agenda. Por favor, intenta más tarde.</p>';
+        document.getElementById('contenedor-actividades').innerHTML = '<p>Hubo un problema al cargar la agenda.</p>';
     }
 });
 
@@ -25,7 +24,7 @@ function mostrarActividades(actividades) {
     contenedor.innerHTML = ''; 
 
     if (actividades.length === 0) {
-        contenedor.innerHTML = '<p class="mensaje-vacio">No se encontraron actividades para este filtro o día.</p>';
+        contenedor.innerHTML = '<p class="mensaje-vacio">No se encontraron actividades.</p>';
         return;
     }
 
@@ -33,18 +32,25 @@ function mostrarActividades(actividades) {
         const tarjeta = document.createElement('div');
         tarjeta.className = 'tarjeta';
         
-        // Configurar la etiqueta de tipo (Recurrente vs Espontáneo)
         let claseBadge = 'tipo-espontaneo';
         let textoTipo = actividad["Tipo"] ? actividad["Tipo"].trim() : 'Evento';
-        
         if (textoTipo.toLowerCase().includes('recurrente')) {
             claseBadge = 'tipo-recurrente';
+        }
+
+        // --- LÓGICA DE HORA DE INICIO Y FIN ---
+        const inicio = actividad["Hora"] || '';
+        const fin = actividad["Fin"] || '';
+        let horarioTexto = inicio;
+
+        if (fin.trim() !== "") {
+            horarioTexto = `${inicio} a ${fin}`;
         }
 
         tarjeta.innerHTML = `
             <div class="badge-tipo ${claseBadge}">${textoTipo}</div>
             <h3>${actividad["Actividad"]}</h3>
-            <p><strong>📅 Cuándo:</strong> ${actividad["Día"]} a las ${actividad["Hora"]}</p>
+            <p><strong>📅 Cuándo:</strong> ${actividad["Día"]} | ${horarioTexto}</p>
             <p><strong>📍 Lugar:</strong> ${actividad["Lugar"]}</p>
             <p><strong>👤 Instructor:</strong> ${actividad["Instructor"]}</p>
         `;
@@ -52,18 +58,16 @@ function mostrarActividades(actividades) {
     });
 }
 
-// 3. Nueva función para filtrar por Día (Calendario)
+// 3. Función para filtrar por Día
 function filtrarPorDia(dia) {
-    diaFiltroActual = dia; // Actualizamos el día seleccionado
-    
-    // Quitamos la clase 'active' de todos los botones y se la ponemos al que tocamos
+    diaFiltroActual = dia;
     document.querySelectorAll('.btn-dia').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-
-    filtrarResultados(); // Llamamos a la función maestra de filtrado
+    // Buscamos el botón que se presionó para marcarlo como activo
+    if (event) event.target.classList.add('active');
+    filtrarResultados();
 }
 
-// 4. Lógica de búsqueda y filtrado maestra
+// 4. Lógica de búsqueda y filtrado
 const buscador = document.getElementById('buscador');
 const filtroTipo = document.getElementById('filtro-tipo');
 
@@ -72,7 +76,6 @@ function filtrarResultados() {
     const tipoSeleccionado = filtroTipo.value.toLowerCase();
 
     const filtradas = actividadesGlobales.filter(actividad => {
-        // Filtro de Texto
         const textoActividad = (actividad["Actividad"] || '').toLowerCase();
         const textoInstructor = (actividad["Instructor"] || '').toLowerCase();
         const textoLugar = (actividad["Lugar"] || '').toLowerCase();
@@ -80,23 +83,11 @@ function filtrarResultados() {
                               textoInstructor.includes(textoBusqueda) ||
                               textoLugar.includes(textoBusqueda);
         
-        // Filtro de Tipo (Recurrente/Espontáneo)
         const textoTipoActividad = (actividad["Tipo"] || '').toLowerCase();
-        let coincideTipo = true;
-        if (tipoSeleccionado !== 'todos') {
-            if (tipoSeleccionado === 'recurrente') {
-                coincideTipo = textoTipoActividad.includes('recurrente');
-            } else if (tipoSeleccionado === 'espontaneo') {
-                coincideTipo = textoTipoActividad.includes('espontáneo') || textoTipoActividad.includes('espontaneo');
-            }
-        }
+        let coincideTipo = tipoSeleccionado === 'todos' || textoTipoActividad.includes(tipoSeleccionado);
 
-        // Filtro de Día (Calendario)
         const textoDiaActividad = (actividad["Día"] || '').toLowerCase();
-        let coincideDia = true;
-        if (diaFiltroActual !== 'todos') {
-            coincideDia = textoDiaActividad.includes(diaFiltroActual.toLowerCase());
-        }
+        let coincideDia = diaFiltroActual === 'todos' || textoDiaActividad.includes(diaFiltroActual.toLowerCase());
 
         return coincideTexto && coincideTipo && coincideDia;
     });
@@ -104,6 +95,5 @@ function filtrarResultados() {
     mostrarActividades(filtradas);
 }
 
-// Eventos
 buscador.addEventListener('input', filtrarResultados);
 filtroTipo.addEventListener('change', filtrarResultados);
