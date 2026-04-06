@@ -21,6 +21,63 @@ main {
     padding: 0 1rem;
 }
 
+/* --- NUEVOS ESTILOS PARA EL CALENDARIO --- */
+.calendario-filtros {
+    text-align: center;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.calendario-filtros p {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #0056b3;
+}
+
+.botones-dias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-dia {
+    padding: 10px 20px;
+    border: 2px solid #0056b3;
+    background: white;
+    color: #0056b3;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.btn-dia:hover {
+    background: #eef4ff;
+    transform: translateY(-2px);
+}
+
+.btn-dia.active {
+    background: #0056b3;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 86, 179, 0.3);
+}
+
+.btn-todos {
+    border-color: #555;
+    color: #555;
+}
+
+.btn-todos.active {
+    background: #555;
+    color: white;
+}
+/* --------------------------------------- */
+
 .controles {
     display: flex;
     gap: 1rem;
@@ -53,6 +110,11 @@ main {
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     border-top: 4px solid #0056b3;
     position: relative;
+    transition: transform 0.2s;
+}
+
+.tarjeta:hover {
+    transform: translateY(-5px);
 }
 
 .tarjeta h3 {
@@ -66,7 +128,6 @@ main {
     font-size: 0.95rem;
 }
 
-/* Estilos para las etiquetas de Recurrente/Espontáneo */
 .badge-tipo {
     position: absolute;
     top: -12px;
@@ -79,9 +140,18 @@ main {
 }
 
 .tipo-recurrente {
-    background-color: #28a745; /* Verde para cursos constantes */
+    background-color: #28a745;
 }
 
 .tipo-espontaneo {
-    background-color: #e67e22; /* Naranja para eventos únicos */
+    background-color: #e67e22;
+}
+
+/* Mensaje cuando no hay resultados */
+.mensaje-vacio {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    font-style: italic;
+    color: #777;
 }
